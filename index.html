@@ -1,154 +1,317 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pendaftaran Turnamen Mobile Legends</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .gradient-bg {
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    }
-    .glass {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-    }
-    .card-hover:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-    }
-    .loading-spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #6366f1;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #10b981;
-      color: white;
-      padding: 14px 20px;
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.4s ease;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Turnamen Mobile Legends</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 15s ease infinite;
+        }
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-shadow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15), 0 15px 15px -5px rgba(0, 0, 0, 0.08);
+        }
+        .success-animation {
+            animation: successPulse 0.6s ease-in-out;
+        }
+        @keyframes successPulse {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 50% }
+            50% { background-position: 100% 50% }
+            100% { background-position: 0% 50% }
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
-<body class="gradient-bg min-h-screen py-10">
-  <div class="container mx-auto px-4 max-w-3xl">
-    
-    <!-- Header -->
-    <div class="text-center mb-10 animate-fadeIn">
-      <div class="text-6xl mb-4">🎮</div>
-      <h1 class="text-4xl font-bold text-white mb-2">Turnamen Mobile Legends</h1>
-      <p class="text-blue-100 text-lg">Daftar sekarang dan menangkan hadiah jutaan rupiah!</p>
-    </div>
-
-    <!-- Stepper -->
-    <div class="flex justify-center mb-8">
-      <div class="flex items-center space-x-6 text-white text-sm">
-        <div class="flex flex-col items-center">
-          <div class="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 font-bold">1</div>
-          <span>Data Tim</span>
+<body class="gradient-bg min-h-screen py-8">
+    <div class="container mx-auto px-4 sm:px-6 max-w-2xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="text-6xl mb-4">🎮</div>
+            <h1 class="text-4xl font-bold text-white mb-2">Turnamen Mobile Legends</h1>
+            <p class="text-blue-100 text-lg">Daftar sekarang dan menangkan hadiah jutaan rupiah!</p>
         </div>
-        <div class="w-10 h-[2px] bg-white/30"></div>
-        <div class="flex flex-col items-center">
-          <div class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-400 font-bold">2</div>
-          <span>Konfirmasi</span>
+
+        <!-- Registration Form -->
+        <div class="bg-white/95 rounded-2xl card-shadow p-8 mb-6 backdrop-blur-md">
+            <div class="mb-6 relative">
+                <div class="h-2 bg-gray-200 rounded-full">
+                    <div id="progressBar" class="h-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div id="progressText" class="text-sm text-gray-600 mt-2 text-center">0% Lengkap</div>
+            </div>
+            <form id="registrationForm" class="space-y-8">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Tim *</label>
+                        <input type="text" id="teamName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="Masukkan nama tim">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Nama Kapten *</label>
+                        <input type="text" id="captainName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="Nama lengkap kapten">
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp Kapten *</label>
+                        <input type="tel" id="whatsapp" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="08xxxxxxxxxx">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                        <input type="email" id="email" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="email@example.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ID Game Kapten *</label>
+                    <input type="text" id="gameId" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                           placeholder="Contoh: 123456789 (1234)">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Anggota Tim (4 orang) *</label>
+                    <div class="space-y-3">
+                        <input type="text" id="member1" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="Anggota 1 - Nama | ID Game">
+                        <input type="text" id="member2" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="Anggota 2 - Nama | ID Game">
+                        <input type="text" id="member3" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="Anggota 3 - Nama | ID Game">
+                        <input type="text" id="member4" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="Anggota 4 - Nama | ID Game">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rank Tertinggi Tim *</label>
+                    <select id="rank" required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        <option value="">Pilih rank tertinggi</option>
+                        <option value="Warrior">Warrior</option>
+                        <option value="Elite">Elite</option>
+                        <option value="Master">Master</option>
+                        <option value="Grandmaster">Grandmaster</option>
+                        <option value="Epic">Epic</option>
+                        <option value="Legend">Legend</option>
+                        <option value="Mythic">Mythic</option>
+                        <option value="Mythical Honor">Mythical Honor</option>
+                        <option value="Mythical Glory">Mythical Glory</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Pengalaman Turnamen</label>
+                    <textarea id="experience" rows="3" 
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                              placeholder="Ceritakan pengalaman turnamen sebelumnya (opsional)"></textarea>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="agreement" required 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="agreement" class="ml-2 block text-sm text-gray-700">
+                        Saya setuju dengan <span class="text-blue-600 font-medium">syarat dan ketentuan</span> turnamen *
+                    </label>
+                </div>
+
+                <button type="submit" id="submitBtn"
+                        class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transform hover:scale-102 hover:shadow-lg transition-all duration-300 flex items-center justify-center relative overflow-hidden group">
+                    <span id="submitText">Daftar Turnamen</span>
+                    <div id="loadingSpinner" class="loading-spinner ml-2 hidden"></div>
+                </button>
+            </form>
         </div>
-      </div>
-    </div>
 
-    <!-- Registration Form -->
-    <div class="bg-white rounded-2xl shadow-lg p-8 mb-6 transition-all card-hover">
-      <form id="registrationForm" class="space-y-6">
-        <!-- Form inputs sama seperti sebelumnya -->
-        <!-- ... (tidak dihapus agar integrasi Google Sheet tetap aman) -->
-      </form>
-    </div>
-
-    <!-- Success Message -->
-    <div id="successMessage" class="hidden glass text-white p-8 rounded-2xl text-center">
-      <div class="text-5xl mb-3">✅</div>
-      <h3 class="text-xl font-bold mb-2">Pendaftaran Berhasil!</h3>
-      <p>Kami akan menghubungi Anda melalui WhatsApp untuk konfirmasi.</p>
-    </div>
-
-    <!-- Tournament Info -->
-    <div class="glass rounded-2xl p-6 text-white mt-8">
-      <h3 class="text-xl font-bold mb-4">📋 Informasi Turnamen</h3>
-      <div class="grid md:grid-cols-2 gap-4 text-sm">
-        <div>
-          <p><strong>🏆 Juara 1:</strong> Rp 5.000.000</p>
-          <p><strong>🥈 Juara 2:</strong> Rp 3.000.000</p>
-          <p><strong>🥉 Juara 3:</strong> Rp 1.500.000</p>
+        <!-- Success Message -->
+        <div id="successMessage" class="hidden bg-green-500 text-white p-6 rounded-2xl card-shadow text-center success-animation">
+            <div class="text-4xl mb-2">✅</div>
+            <h3 class="text-xl font-bold mb-2">Pendaftaran Berhasil!</h3>
+            <p>Tim Anda telah terdaftar. Kami akan menghubungi Anda melalui WhatsApp untuk konfirmasi.</p>
         </div>
-        <div>
-          <p><strong>📅 Tanggal:</strong> 15-17 Desember 2024</p>
-          <p><strong>💰 Biaya:</strong> Rp 50.000/tim</p>
-          <p><strong>👥 Max:</strong> 64 tim</p>
+
+        <!-- Tournament Info -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 text-white mt-8 sm:mt-12">
+            <h3 class="text-xl font-bold mb-4">📋 Informasi Turnamen</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p><strong>🏆 Hadiah Juara 1:</strong> Rp 5.000.000</p>
+                    <p><strong>🥈 Hadiah Juara 2:</strong> Rp 3.000.000</p>
+                    <p><strong>🥉 Hadiah Juara 3:</strong> Rp 1.500.000</p>
+                </div>
+                <div>
+                    <p><strong>📅 Tanggal:</strong> 15-17 Desember 2024</p>
+                    <p><strong>💰 Biaya Daftar:</strong> Rp 50.000/tim</p>
+                    <p><strong>👥 Max Peserta:</strong> 64 tim</p>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="toast">✅ Pendaftaran berhasil dikirim!</div>
+    <script>
+        // Google Apps Script Web App URL - GANTI DENGAN URL ANDA
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbztB2ZFnoNWhOM487mPaG1fzgPEfbFTW71N9-5wWMuF50V4mGzMSHX5UIbnoFFQvw1b/exec';
 
-  <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbztB2ZFnoNWhOM487mPaG1fzgPEfbFTW71N9-5wWMuF50V4mGzMSHX5UIbnoFFQvw1b/exec';
+        // Form validation functions
+        const validations = {
+            teamName: (value) => value.length >= 3 ? '' : 'Nama tim minimal 3 karakter',
+            captainName: (value) => /^[a-zA-Z\s]{3,}$/.test(value) ? '' : 'Nama kapten harus berupa huruf',
+            whatsapp: (value) => /^08[0-9]{8,11}$/.test(value) ? '' : 'Format WhatsApp tidak valid (08xxxxxxxxxx)',
+            email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Format email tidak valid',
+            gameId: (value) => /^[0-9]{6,10}\s*\([0-9]{4}\)$/.test(value) ? '' : 'Format ID Game tidak valid (123456789 (1234))',
+            member1: (value) => /^.+\s*\|\s*[0-9]{6,10}\s*\([0-9]{4}\)$/.test(value) ? '' : 'Format: Nama | ID Game (1234)',
+            member2: (value) => /^.+\s*\|\s*[0-9]{6,10}\s*\([0-9]{4}\)$/.test(value) ? '' : 'Format: Nama | ID Game (1234)',
+            member3: (value) => /^.+\s*\|\s*[0-9]{6,10}\s*\([0-9]{4}\)$/.test(value) ? '' : 'Format: Nama | ID Game (1234)',
+            member4: (value) => /^.+\s*\|\s*[0-9]{6,10}\s*\([0-9]{4}\)$/.test(value) ? '' : 'Format: Nama | ID Game (1234)',
+            rank: (value) => value !== '' ? '' : 'Pilih rank tertinggi tim'
+        };
 
-    document.getElementById('registrationForm')?.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('submitBtn');
-      const text = document.getElementById('submitText');
-      const spinner = document.getElementById('loadingSpinner');
-      const success = document.getElementById('successMessage');
-      const toast = document.getElementById('toast');
+        // Add validation feedback to input fields
+        // Progress tracking function
+        function updateProgress() {
+            const totalFields = Object.keys(validations).length;
+            const filledFields = Object.keys(validations).filter(fieldId => {
+                const input = document.getElementById(fieldId);
+                return input && input.value && !validations[fieldId](input.value);
+            }).length;
+            
+            const progress = Math.round((filledFields / totalFields) * 100);
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${progress}% Lengkap`;
+            
+            // Add visual feedback
+            if (progress === 100) {
+                document.getElementById('progressBar').classList.add('animate-pulse');
+            } else {
+                document.getElementById('progressBar').classList.remove('animate-pulse');
+            }
+        }
 
-      btn.disabled = true;
-      text.textContent = 'Mengirim...';
-      spinner.classList.remove('hidden');
+        Object.keys(validations).forEach(fieldId => {
+            const input = document.getElementById(fieldId);
+            if (!input) return;
 
-      try {
-        // kirim data ke Google Sheets
-        await fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ /* form data sama seperti sebelumnya */ })
+            const wrapper = input.parentElement;
+            const feedback = document.createElement('p');
+            feedback.className = 'text-sm mt-1 hidden';
+            wrapper.appendChild(feedback);
+
+            input.addEventListener('input', function() {
+                const error = validations[fieldId](this.value);
+                feedback.textContent = error;
+                feedback.className = `text-sm mt-1 ${error ? 'text-red-500' : 'text-green-500'} ${error || this.value ? '' : 'hidden'}`;
+                input.className = input.className.replace(/ border-(?:red|green)-500/g, '') + 
+                    (error ? ' border-red-500' : this.value ? ' border-green-500' : '');
+                updateProgress();
+            });
         });
 
-        document.querySelector('.bg-white.rounded-2xl').style.display = 'none';
-        success.classList.remove('hidden');
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.textContent = 'Mengirim...';
+            loadingSpinner.classList.remove('hidden');
+            
+            // Collect form data
+            const formData = {
+                timestamp: new Date().toLocaleString('id-ID'),
+                teamName: document.getElementById('teamName').value,
+                captainName: document.getElementById('captainName').value,
+                whatsapp: document.getElementById('whatsapp').value,
+                email: document.getElementById('email').value,
+                gameId: document.getElementById('gameId').value,
+                member1: document.getElementById('member1').value,
+                member2: document.getElementById('member2').value,
+                member3: document.getElementById('member3').value,
+                member4: document.getElementById('member4').value,
+                rank: document.getElementById('rank').value,
+                experience: document.getElementById('experience').value || 'Tidak ada'
+            };
+            
+            try {
+                // Send to Google Sheets (replace with your actual script URL)
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                // Show success message
+                document.querySelector('.bg-white.rounded-2xl').style.display = 'none';
+                successMessage.classList.remove('hidden');
+                
+                // Reset form
+                document.getElementById('registrationForm').reset();
+                
+            } catch (error) {
+                alert('Terjadi kesalahan saat mengirim data. Silakan coba lagi.');
+                console.error('Error:', error);
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.textContent = 'Daftar Turnamen';
+                loadingSpinner.classList.add('hidden');
+            }
+        });
 
-        toast.classList.add('show');
-        setTimeout(()=>toast.classList.remove('show'), 3000);
-
-        document.getElementById('registrationForm').reset();
-      } catch (err) {
-        alert("Gagal mengirim data, coba lagi.");
-      } finally {
-        btn.disabled = false;
-        text.textContent = 'Daftar Turnamen';
-        spinner.classList.add('hidden');
-      }
-    });
-  </script>
-</body>
+        // Phone number formatting
+        document.getElementById('whatsapp').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.startsWith('0')) {
+                value = '62' + value.substring(1);
+            }
+            e.target.value = value;
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'980dc4dfd06e89aa',t:'MTc1ODE2NjI3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
